@@ -411,7 +411,7 @@ body.challenge-mode #appTitleBar { background: linear-gradient(to bottom, #d6000
   <div class="win-content">
     
     <div id="newUpdateBanner">
-      <marquee scrollamount="6">*** NEW UPDATE*** WHAT THE F*CK IS THIS GAME *** TRUST ME - IT IS GOOD ***                   IMA KRILL MY SHELF</marquee>
+      <marquee scrollamount="6">*** NEW UPDATE*** WHAT THE F*CK IS THIS GAME *** TRUST ME - IT IS GOOD *** IMA KRILL MY SHELF *** TIP: COMMITING MURDER IS NOT VERY NICE ***</marquee>
     </div>
     
     <div id="titleScreen">Grampa's Life Support<br><span style="font-size: 20px; color:#555;">XP Edition</span></div>
@@ -786,7 +786,7 @@ nukesCounter.onclick = () => {
   const alertDiv = document.createElement('div');
   alertDiv.className = 'challenge-alert';
   alertDiv.style.background = '#ff8800'; 
-  alertDiv.innerHTML = `☢️ VIRUS NUKE ACTIVATED ☢️`;
+  alertDiv.innerHTML = `President, There is a second bomb `;
   document.body.appendChild(alertDiv);
   setTimeout(() => alertDiv.remove(), 2000);
 };
@@ -804,7 +804,7 @@ freezesCounter.onclick = () => {
   const alertDiv = document.createElement('div');
   alertDiv.className = 'challenge-alert';
   alertDiv.style.background = '#00aaaa'; 
-  alertDiv.innerHTML = `❄️ SYSTEM FROZEN ❄️`;
+  alertDiv.innerHTML = `freeze thingy`;
   document.body.appendChild(alertDiv);
   setTimeout(() => alertDiv.remove(), 2000);
   
@@ -823,7 +823,7 @@ function useExtraLife() {
   const alertDiv = document.createElement('div');
   alertDiv.className = 'challenge-alert';
   alertDiv.style.background = '#0055ea'; 
-  alertDiv.innerHTML = `💾 SYSTEM RESTORED 💾<br><span style="font-size:20px;">Time Skipped (No Payout)</span>`;
+  alertDiv.innerHTML = `SYSTEM RESTORED <br><span style="font-size:20px;">Time Skipped (No Payout)</span>`;
   document.body.appendChild(alertDiv);
   setTimeout(() => alertDiv.remove(), 3000);
   
@@ -888,7 +888,7 @@ function startChallengeMode() {
   
   const alertDiv = document.createElement('div');
   alertDiv.className = 'challenge-alert';
-  alertDiv.innerHTML = `⚠️ VIRUS SWARM ⚠️<br><span style="font-size:20px;">SURVIVE Time ${level}!</span>`;
+  alertDiv.innerHTML = `VIRUS SWARM<br><span style="font-size:20px;">SURVIVE Time ${level}!</span>`;
   document.body.appendChild(alertDiv);
   setTimeout(() => alertDiv.remove(), 3000);
 }
@@ -903,7 +903,7 @@ function endChallengeMode(collected = true) {
     const alertDiv = document.createElement('div');
     alertDiv.className = 'challenge-alert';
     alertDiv.style.background = '#00d200';
-    alertDiv.innerHTML = `✅ THREAT NEUTRALIZED ✅<br><span style="font-size:20px;">BOUNTY COLLECTED</span>`;
+    alertDiv.innerHTML = `THREAT NEUTRALIZED<br><span style="font-size:20px;">BOUNTY COLLECTED</span>`;
     document.body.appendChild(alertDiv);
     setTimeout(() => alertDiv.remove(), 3000);
   }
@@ -1005,7 +1005,7 @@ function triggerBoostEffect() {
   alertDiv.style.color = '#000';
   alertDiv.style.textShadow = 'none';
   alertDiv.style.border = '5px solid #8b6508';
-  alertDiv.innerHTML = `🚀 LEVEL SKIPPED 🚀`;
+  alertDiv.innerHTML = `LEVEL SKIPPED`;
   document.body.appendChild(alertDiv);
   setTimeout(() => alertDiv.remove(), 2000);
   
