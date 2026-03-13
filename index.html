@@ -569,18 +569,15 @@ const marqueePhrases = [
   "Jk the rapture isnt coming",
   "Buy more GrampaCoin!",
   "Your computer has virus! (not really)",
-  "Windows XP is a OS (don't check)",
-  "Now with more gameplay",
-  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHH",
+  "Windows XP is the best OS",
+  "Now with more dial-up sounds!",
+  "Loading... please wait forever",
   "Grampa says: you're grounded",
-  "Ai was not not used in the production of this entertainment",
+  "Blue screen of death incoming?",
   "Click here for free RAM!",
   "Now in 640x480 resolution",
   "MS-DOS mode not available",
   "You wouldn't download a car"
-  "Just don't do it - nike"
-  "Free until I make you pay for it"
-  "I'm gonna update it... at some point ig"
 ];
 
 function updateMarquee() {
@@ -1195,7 +1192,7 @@ function showBlockedText() {
   setTimeout(() => txt.remove(), 1000);
 }
 
-// Dragging Logic
+// Dragging Logic – MODIFIED to only affect z-index for ads
 function makeDraggable(element, mobile=false, dragWholeElement=false) {
   let pos1=0, pos2=0, pos3=0, pos4=0;
   let isDragging = false;
@@ -1223,9 +1220,11 @@ function makeDraggable(element, mobile=false, dragWholeElement=false) {
       document.addEventListener('mouseup', closeDrag);
     }
     
-    // Bring to front
-    document.querySelectorAll('.ad').forEach(ad => ad.style.zIndex = 100);
-    element.style.zIndex = 101;
+    // Bring to front – only for ads, not the main window
+    if (element.classList.contains('ad')) {
+      document.querySelectorAll('.ad').forEach(ad => ad.style.zIndex = 100);
+      element.style.zIndex = 101;
+    }
 
     e.preventDefault();
   }
