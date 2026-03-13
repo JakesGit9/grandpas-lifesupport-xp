@@ -411,7 +411,7 @@ body.challenge-mode #appTitleBar { background: linear-gradient(to bottom, #d6000
   <div class="win-content">
     
     <div id="newUpdateBanner">
-      <marquee scrollamount="6">*** NEW UPDATE***ㅤㅤㅤㅤㅤ WHAT THE F*CK IS THIS GAME ㅤㅤㅤㅤㅤㅤ*** TRUST ME - IT IS GOOD *** IMA KRILL MY SHELF *** ㅤㅤㅤㅤㅤㅤㅤㅤㅤㅤTIP: COMMITING MURDER IS NOT VERY NICE ***ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎Did you know that almost every person that you will 'meat' is currently aliveㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎‎psst - frogs are not always green (unless they are) this is because lead is not made of silverㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎The rapture is coming (and it was not last friday)ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎‎11 billionㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎11 billion is a number  ‎ ‎ ‎ ㅤㅤㅤㅤㅤ‎‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎  ** 8 **      ‎ ‎ ‎ ‎ ‎ ‎ ‎ㅤㅤㅤㅤㅤ‎ ‎ ‎ ‎ ‎ ‎osh I forgot this was just a game, continue.ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ㅤㅤㅤㅤㅤ‎ ‎ ‎ ‎ ‎ ‎ ‎Jk the rapture isnt coming</marquee>
+      <marquee scrollamount="6" id="mainMarquee">*** NEW UPDATE ***</marquee>
     </div>
     
     <div id="titleScreen">Grampa's Life Support<br><span style="font-size: 20px; color:#555;">XP Edition</span></div>
@@ -547,11 +547,57 @@ const UPGRADE_DATA = {
   income: { icon: '💸', name: 'Crypto Miner', desc: 'Increases Time completion money', baseCost: 50, mult: 2.0, max: 5 },
   pierce: { icon: '🔨', name: 'Task Manager', desc: 'Armored Ads have -1 HP', baseCost: 150, mult: 2.5, max: 1 },
   ultimate: { icon: '👑', name: 'The Inheritance', desc: '+50 Max Time, +10 Kick', baseCost: 3000, mult: 1, max: 1 },
-  // Consumables
+  // Consumables (powerups)
   backup: { icon: '💾', name: 'System Backup Floppy', desc: 'Passive: Auto-Revive & Skip Time (No Payout)', baseCost: 50, mult: 1.3, max: 99, isConsumable: true },
   nuke: { icon: '☢️', name: 'Anti-Virus Nuke', desc: 'Active: Click tray icon to clear all ads on screen', baseCost: 30, mult: 1.1, max: 99, isConsumable: true },
   freeze: { icon: '❄️', name: 'System Freeze', desc: 'Active: Click tray icon to pause timer & ads for 5s', baseCost: 20, mult: 1.1, max: 99, isConsumable: true }
 };
+
+// Random marquee phrases
+const marqueePhrases = [
+  "*** NEW UPDATE ***",
+  "WHAT THE F*CK IS THIS GAME",
+  "*** TRUST ME - IT IS GOOD ***",
+  "IMA KRILL MY SHELF ***",
+  "TIP: COMMITING MURDER IS NOT VERY NICE",
+  "Did you know that almost every person that you will 'meat' is currently alive",
+  "psst - frogs are not always green (unless they are) this is because lead is not made of silver",
+  "The rapture is coming (and it was not last friday)",
+  "11 billion is a number",
+  "** 8 **",
+  "osh I forgot this was just a game, continue.",
+  "Jk the rapture isnt coming",
+  "Buy more GrampaCoin!",
+  "Your computer has virus! (not really)",
+  "Windows XP is a OS (don't check)",
+  "Now with more gameplay",
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHH",
+  "Grampa says: you're grounded",
+  "Ai was not not used in the production of this entertainment",
+  "Click here for free RAM!",
+  "Now in 640x480 resolution",
+  "MS-DOS mode not available",
+  "You wouldn't download a car"
+  "Just don't do it - nike"
+  "Free until I make you pay for it"
+  "I'm gonna update it... at some point ig"
+];
+
+function updateMarquee() {
+  const marquee = document.getElementById('mainMarquee');
+  // Pick 3-7 random phrases and join them with some spacing
+  const count = 3 + Math.floor(Math.random() * 5); // 3-7 phrases
+  let phrases = [];
+  for (let i = 0; i < count; i++) {
+    phrases.push(marqueePhrases[Math.floor(Math.random() * marqueePhrases.length)]);
+  }
+  // Add some random spaces and separators
+  marquee.innerText = phrases.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
+}
+
+// Call on load and periodically
+updateMarquee();
+setInterval(updateMarquee, 30000); // new marquee every 30 seconds
 
 document.onmousemove = e => { mouseX = e.clientX; mouseY = e.clientY; };
 
@@ -665,6 +711,7 @@ function resetGame() {
   document.querySelectorAll(".money-float").forEach(txt => txt.remove());
   
   updateHUD(); updateTimerBar(); updateTaskbarApps();
+  updateMarquee(); // fresh marquee on reset
 }
 
 startButton.onclick = () => {
@@ -919,11 +966,16 @@ closeStoreBtn.onclick = () => {
   storeScreen.classList.remove("show");
 };
 
+// Fixed pricing for consumables, scaling for permanent upgrades
 function getUpgradeCost(id) {
   let data = UPGRADE_DATA[id];
   let currentLvl = purchasedUpgrades[id] || 0;
   if (currentLvl >= data.max) return "MAX";
-  return Math.floor(data.baseCost * Math.pow(data.mult, currentLvl));
+  if (data.isConsumable) {
+    return data.baseCost; // fixed price for powerups
+  } else {
+    return Math.floor(data.baseCost * Math.pow(data.mult, currentLvl));
+  }
 }
 
 function renderStore() {
@@ -973,7 +1025,7 @@ function renderStore() {
     if (canAfford) {
       buyBtn.onclick = () => {
         money -= cost;
-        purchasedUpgrades[id] = currentLvl + 1; // Used for price scaling
+        purchasedUpgrades[id] = currentLvl + 1; // Used for level tracking
         if (data.isConsumable) {
           if (id === 'backup') { extraLives++; localStorage.setItem("grampaLivesXP", extraLives); }
           if (id === 'nuke') { nukes++; localStorage.setItem("grampaNukesXP", nukes); }
@@ -1266,6 +1318,7 @@ restartButton.onclick = () => {
   
   document.querySelectorAll(".ad").forEach(ad=>ad.remove());
   document.querySelectorAll(".blocked-ad-text").forEach(txt=>txt.remove());
+  updateMarquee(); // refresh marquee on restart
 };
 
 // Dev Cheat Level Jump
