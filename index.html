@@ -580,10 +580,12 @@ const marqueePhrases = [
   "You wouldn't download a car"
 ];
 
+// --- FIXED MARQUEE FUNCTION ---
 function updateMarquee() {
   const banner = document.getElementById('newUpdateBanner');
   const oldMarquee = document.getElementById('mainMarquee');
-  
+  if (!banner || !oldMarquee) return; // safety check
+
   // Pick 3-7 random phrases
   const count = 3 + Math.floor(Math.random() * 5);
   let phrases = [];
@@ -600,9 +602,6 @@ function updateMarquee() {
   
   // Replace the old one
   banner.replaceChild(newMarquee, oldMarquee);
-}
-  // Add some random spaces and separators
-  marquee.innerText = phrases.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
 }
 
 // Call on load and periodically
