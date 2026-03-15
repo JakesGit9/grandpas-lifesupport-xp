@@ -581,13 +581,26 @@ const marqueePhrases = [
 ];
 
 function updateMarquee() {
-  const marquee = document.getElementById('mainMarquee');
-  // Pick 3-7 random phrases and join them with some spacing
-  const count = 3 + Math.floor(Math.random() * 5); // 3-7 phrases
+  const banner = document.getElementById('newUpdateBanner');
+  const oldMarquee = document.getElementById('mainMarquee');
+  
+  // Pick 3-7 random phrases
+  const count = 3 + Math.floor(Math.random() * 5);
   let phrases = [];
   for (let i = 0; i < count; i++) {
     phrases.push(marqueePhrases[Math.floor(Math.random() * marqueePhrases.length)]);
   }
+  const newText = phrases.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
+  
+  // Create a new marquee element
+  const newMarquee = document.createElement('marquee');
+  newMarquee.id = 'mainMarquee';
+  newMarquee.setAttribute('scrollamount', '6');
+  newMarquee.innerText = newText;
+  
+  // Replace the old one
+  banner.replaceChild(newMarquee, oldMarquee);
+}
   // Add some random spaces and separators
   marquee.innerText = phrases.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
 }
