@@ -580,35 +580,37 @@ const marqueePhrases = [
   "You wouldn't download a car"
 ];
 
-// --- FIXED MARQUEE FUNCTION ---
+// --- FIXED MARQUEE FUNCTION: generates a very long continuous text ---
 function updateMarquee() {
   const banner = document.getElementById('newUpdateBanner');
   const oldMarquee = document.getElementById('mainMarquee');
   if (!banner || !oldMarquee) return;
 
-  // Copy array so original order isn't destroyed
+  // Shuffle phrases once to create variety
   let shuffled = [...marqueePhrases];
-
-  // Fisher-Yates shuffle
   for (let i = shuffled.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 
-  // Join ALL phrases
-  const newText = shuffled.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
+  // Repeat the shuffled list 30 times to make it extremely long
+  // This ensures the marquee scrolls for many minutes before looping
+  const REPEAT_COUNT = 30;
+  let longText = '';
+  for (let rep = 0; rep < REPEAT_COUNT; rep++) {
+    longText += shuffled.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
+  }
 
   const newMarquee = document.createElement('marquee');
   newMarquee.id = 'mainMarquee';
-  newMarquee.setAttribute('scrollamount','6');
-  newMarquee.innerText = newText;
+  newMarquee.setAttribute('scrollamount', '6');
+  newMarquee.innerText = longText;
 
   banner.replaceChild(newMarquee, oldMarquee);
 }
 
-// Call on load and periodically
+// Call once on load and on restart – no periodic replacement that causes cuts
 updateMarquee();
-setInterval(updateMarquee, 30000); // new marquee every 30 seconds
 
 document.onmousemove = e => { mouseX = e.clientX; mouseY = e.clientY; };
 
@@ -722,7 +724,7 @@ function resetGame() {
   document.querySelectorAll(".money-float").forEach(txt => txt.remove());
   
   updateHUD(); updateTimerBar(); updateTaskbarApps();
-  updateMarquee(); // fresh marquee on reset
+  updateMarquee(); // fresh long marquee on reset (still no periodic cuts)
 }
 
 startButton.onclick = () => {
@@ -1331,7 +1333,7 @@ restartButton.onclick = () => {
   
   document.querySelectorAll(".ad").forEach(ad=>ad.remove());
   document.querySelectorAll(".blocked-ad-text").forEach(txt=>txt.remove());
-  updateMarquee(); // refresh marquee on restart
+  updateMarquee(); // refresh marquee on restart – still a long continuous text
 };
 
 // Dev Cheat Level Jump
