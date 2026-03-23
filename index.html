@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Grampa's Life Support 1996</title>
+<title>Grampa's Life Support: Boss XP Edition</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
 /* Windows XP Desktop Background */
@@ -142,7 +142,7 @@ body {
   box-shadow: 2px 2px 15px rgba(0,0,0,0.5);
   display: flex;
   flex-direction: column;
-  position: absolute;
+  position: absolute; /* default for draggable windows */
 }
 .win-xp-titlebar {
   background: linear-gradient(to bottom, #0058e6, #3a93ff 10%, #0058e6);
@@ -345,6 +345,10 @@ marquee {
   align-items: center;
 }
 .modal-overlay.show { display: flex; }
+.modal-overlay .win-xp-window {
+  position: relative;
+  margin: auto;
+}
 
 .upgrade-container {
   display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px;
@@ -372,8 +376,8 @@ marquee {
   background: #fff;
   width: 100%;
   box-sizing: border-box;
+  flex-direction: column;
 }
-/* Fix store items to be vertical list */
 #storeContainer {
   display: flex;
   flex-direction: column;
@@ -426,7 +430,7 @@ marquee {
   transition: width 0.2s;
 }
 
-/* Item window */
+/* Item window (The Will) */
 .item-window {
   width: 80px;
   z-index: 250;
@@ -444,6 +448,11 @@ marquee {
   align-items: center;
   justify-content: center;
   font-size: 30px;
+}
+.item-window img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
 }
 
 .boss-projectile {
@@ -506,8 +515,36 @@ marquee {
 body.boss-mode #appWindow { border-color: #ff4444; }
 body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #aa0000); }
 
-#gameOverScreen .win-xp-titlebar { background: linear-gradient(to bottom, #d60000, #900000); }
-#gameOverScreen .win-xp-window { border-color: #d60000; }
+/* Game Over Screen */
+#gameOverScreen .win-xp-titlebar {
+  background: linear-gradient(to bottom, #d60000, #900000);
+}
+#gameOverScreen .win-xp-window {
+  border-color: #d60000;
+  width: 380px;
+}
+#gameOverScreen .win-xp-content {
+  flex-direction: column;
+  text-align: center;
+  gap: 15px;
+  padding: 20px;
+}
+#gameOverScreen h2 {
+  color: #d60000;
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+#finalScore, #finalLevel {
+  font-size: 16px;
+  margin: 5px 0;
+  color: #333;
+}
+#gameOverScreen .xp-btn {
+  margin-top: 10px;
+  width: 150px;
+  align-self: center;
+}
 
 .xp-input {
   border: 2px inset #ddd;
@@ -559,12 +596,12 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
     <div id="newUpdateBanner">
       <marquee scrollamount="6" id="mainMarquee">*** NEW UPDATE ***</marquee>
     </div>
-    <div id="titleScreen">Grampa's Life Support<br><span style="font-size: 20px; color:#555;">1996 Edition</span></div>
-    <div id="menuMoney">Inheritence: $0</div>
+    <div id="titleScreen">Grampa's Life Support<br><span style="font-size: 20px; color:#555;">Boss XP Edition</span></div>
+    <div id="menuMoney">Bank: $0</div>
     <div id="instructions">
       <b>OBJECTIVE:</b> Kick the life support to kill Grampa before he removes you from the will<br>
-      <b>BOSSES:</b> Every 10 levels a unique boss appears. Protect the forged will!<br>
-      <b>RULES:</b> Click the will item to move it. If the boss's lasers hit it 3 times, you fail. Kick the button to damage the boss.
+      <b>BOSSES:</b> Every 10 levels a unique boss appears. Protect "The Will"!<br>
+      <b>RULES:</b> Click The Will to move it. If the boss's lasers hit it 3 times (plus upgrades), you fail. Kick the button to damage the boss.
     </div>
     <img id="lifeSupportImage" src="image1.png" alt="Life Support" onerror="this.style.background='#ffcccc'; this.alt='[Image missing, check floppy disk]';">
     <button id="addTimeButton" class="xp-btn">Kick His Life Support</button>
@@ -581,7 +618,7 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
 <div id="levelSelectScreen" class="modal-overlay">
   <div class="win-xp-window" style="width: 500px;">
     <div class="win-xp-titlebar">
-      <span>Choose Level</span>
+      <span>Choose Starting Level</span>
       <div class="win-xp-close" id="closeLevelSelect">X</div>
     </div>
     <div class="win-xp-content" style="padding: 10px;">
@@ -603,15 +640,15 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
 
 <!-- Game Over Window -->
 <div id="gameOverScreen" class="modal-overlay">
-  <div class="win-xp-window" style="width: 400px;">
+  <div class="win-xp-window">
     <div class="win-xp-titlebar">
       <span>FATAL ERROR (0x000000DEAD)</span>
       <div class="win-xp-close" style="pointer-events:none; opacity:0.5;">X</div>
     </div>
     <div class="win-xp-content">
-      <h2 style="color:red; margin-top:0;">Inheritance Lost</h2>
-      <div id="finalScore" style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">Time Survived: 0</div>
-      <div id="finalLevel" style="font-size: 14px; color: #555; margin-bottom: 20px;">Level Reached: 1</div>
+      <h2>Inheritance Lost</h2>
+      <div id="finalScore" style="font-size: 16px; font-weight: bold;">Time Survived: 0</div>
+      <div id="finalLevel" style="font-size: 14px; color: #555;">Level Reached: 1</div>
       <button id="restartButton" class="xp-btn">Reboot System</button>
     </div>
   </div>
@@ -702,7 +739,7 @@ let bossShootInterval = null;
 let projectiles = [];
 let itemElement = null;
 let itemHits = 0;
-const MAX_ITEM_HITS = 3;
+let currentMaxHits = 3 + (purchasedUpgrades.willHealth || 0);  // dynamic based on upgrade
 
 // DOM Elements
 const timerContainer = document.getElementById("timerContainer");
@@ -748,7 +785,7 @@ const levelGrid = document.getElementById("levelGrid");
 highScoreTray.innerText = "Best: " + highScore;
 updateMenuMoney();
 
-// Create item window (hidden initially)
+// Create item window (The Will) - uses image
 function createItemWindow() {
   let itemWin = document.createElement('div');
   itemWin.className = 'win-xp-window item-window';
@@ -757,17 +794,23 @@ function createItemWindow() {
   
   let titleBar = document.createElement('div');
   titleBar.className = 'win-xp-titlebar';
-  titleBar.innerHTML = '<span>Precious</span><div class="win-xp-close" style="opacity:0.5; pointer-events:none;">X</div>';
+  titleBar.innerHTML = '<span>The Will</span><div class="win-xp-close" style="opacity:0.5; pointer-events:none;">X</div>';
   itemWin.appendChild(titleBar);
   
   let content = document.createElement('div');
   content.className = 'win-xp-content';
-  content.innerHTML = '<div class="item-image">✨</div>';
+  let img = document.createElement('img');
+  img.src = 'will.png';
+  img.style.width = '50px';
+  img.style.height = '50px';
+  img.alt = 'The Will';
+  img.onerror = function() { this.style.display = 'none'; this.parentElement.innerHTML = '📜'; };
+  content.appendChild(img);
   itemWin.appendChild(content);
   
   document.body.appendChild(itemWin);
   
-  // Click on content or title bar (except close) moves item
+  // Click to move item
   itemWin.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('win-xp-close')) return;
     if (!isBossMode) return;
@@ -1032,7 +1075,7 @@ function updateHUD() {
   nukesCounter.innerText = `☢️: ${nukes}`;
   freezesCounter.innerText = `❄️: ${freezes}`;
   xpBar.style.width = ((xp / xpNeeded) * 100) + "%";
-  itemHitsDisplay.innerText = `💢 ${itemHits}/${MAX_ITEM_HITS}`;
+  itemHitsDisplay.innerText = `💢 ${itemHits}/${currentMaxHits}`;
 }
 
 // --- Active Power-ups ---
@@ -1156,7 +1199,8 @@ function startBossLevel(bossLvl) {
   
   let idx = (bossLvl / 10) - 1;
   let bossInfo = bossDefinitions[idx] || bossDefinitions[0];
-  bossMaxHealth = bossInfo.healthBase + (bossLvl * 10);
+  // HALF HEALTH: original healthBase + bossLvl * 10, then divided by 2
+  bossMaxHealth = Math.floor((bossInfo.healthBase + (bossLvl * 10)) / 2);
   bossHealth = bossMaxHealth;
   updateBossHealthBar();
   
@@ -1303,7 +1347,7 @@ function moveProjectiles() {
       itemElement.style.transform = 'scale(1.2)';
       setTimeout(() => itemElement.style.transform = 'scale(1)', 100);
       
-      if (itemHits >= MAX_ITEM_HITS) {
+      if (itemHits >= currentMaxHits) {
         endGame();
       }
       continue;
@@ -1498,12 +1542,27 @@ function triggerBoostEffect() {
   triggerLevelUp();
 }
 
+// FIXED: showBlockedText now positions text fully on screen
 function showBlockedText() {
   const txt = document.createElement('div');
   txt.className = 'blocked-ad-text';
   txt.innerText = 'ERROR 403: AD BLOCKED';
-  txt.style.left = (Math.random() * (window.innerWidth - 200)) + 'px';
-  txt.style.top = (Math.random() * (window.innerHeight - 100)) + 'px';
+  
+  // Estimate dimensions to keep text fully visible
+  const textWidth = 220;
+  const textHeight = 40;
+  
+  // Random position ensuring text stays within visible area
+  let left = Math.random() * (window.innerWidth - textWidth);
+  let top = Math.random() * (window.innerHeight - textHeight - 40);
+  
+  // Clamp to safe boundaries
+  left = Math.max(5, Math.min(left, window.innerWidth - textWidth - 5));
+  top = Math.max(5, Math.min(top, window.innerHeight - textHeight - 35));
+  
+  txt.style.left = left + 'px';
+  txt.style.top = top + 'px';
+  
   document.body.appendChild(txt);
   setTimeout(() => txt.remove(), 1000);
 }
@@ -1598,11 +1657,11 @@ function endGame() {
   clearInterval(gameInterval);
   clearTimeout(adTimeoutId);
   clearInterval(scoreInterval);
-  gameRunning=false;
+  gameRunning = false;
   
   if (isBossMode) endBossLevel(false);
   
-  finalScore.innerText = "Times Survived: " + score;
+  finalScore.innerText = "Time Survived: " + score;
   finalLevel.innerText = "Level Reached: " + level;
   
   if (score > highScore) {
@@ -1617,20 +1676,20 @@ function endGame() {
 restartButton.onclick = () => {
   gameOverScreen.classList.remove("show");
   
-  menuButtons.style.display="flex";
-  instructions.style.display="block";
-  titleScreen.style.display="block";
-  newUpdateBanner.style.display="block";
-  menuMoney.style.display="block";
+  menuButtons.style.display = "flex";
+  instructions.style.display = "block";
+  titleScreen.style.display = "block";
+  newUpdateBanner.style.display = "block";
+  menuMoney.style.display = "block";
   
-  addTimeButton.style.display="none";
-  timerContainer.style.display="none";
-  scoreCounter.style.display="none";
-  levelCounter.style.display="none";
-  xpBarContainer.style.display="none";
+  addTimeButton.style.display = "none";
+  timerContainer.style.display = "none";
+  scoreCounter.style.display = "none";
+  levelCounter.style.display = "none";
+  xpBarContainer.style.display = "none";
   
-  document.querySelectorAll(".ad").forEach(ad=>ad.remove());
-  document.querySelectorAll(".blocked-ad-text").forEach(txt=>txt.remove());
+  document.querySelectorAll(".ad").forEach(ad => ad.remove());
+  document.querySelectorAll(".blocked-ad-text").forEach(txt => txt.remove());
   updateMarquee();
 };
 
@@ -1675,6 +1734,7 @@ const UPGRADE_DATA = {
   income: { icon: '💸', name: 'Crypto Miner', desc: 'Increases Time completion money', baseCost: 50, mult: 2.0, max: 5 },
   pierce: { icon: '🔨', name: 'Task Manager', desc: 'Armored Ads have -1 HP', baseCost: 150, mult: 2.5, max: 1 },
   ultimate: { icon: '👑', name: 'The Inheritance', desc: '+50 Max Time, +10 Kick', baseCost: 3000, mult: 1, max: 1 },
+  willHealth: { icon: '📜', name: 'Will Reinforcements', desc: 'The Will can survive +1 hit', baseCost: 100, mult: 1.8, max: 5, isConsumable: false },
   backup: { icon: '💾', name: 'System Backup Floppy', desc: 'Passive: Auto-Revive & Skip Time (No Payout)', baseCost: 50, mult: 1.3, max: 99, isConsumable: true },
   nuke: { icon: '☢️', name: 'Anti-Virus Nuke', desc: 'Active: Click tray icon to clear all ads on screen', baseCost: 30, mult: 1.1, max: 99, isConsumable: true },
   freeze: { icon: '❄️', name: 'System Freeze', desc: 'Active: Click tray icon to pause timer & ads for 5s', baseCost: 20, mult: 1.1, max: 99, isConsumable: true }
@@ -1752,6 +1812,13 @@ function renderStore() {
         }
         localStorage.setItem("grampaMoneyXP", money);
         localStorage.setItem("grampaUpgradesXP", JSON.stringify(purchasedUpgrades));
+        
+        // Update dynamic max hits for The Will
+        if (id === 'willHealth') {
+          currentMaxHits = 3 + (purchasedUpgrades.willHealth || 0);
+          updateHUD();
+        }
+        
         updateMenuMoney();
         updateTaskbarApps();
         renderStore();
