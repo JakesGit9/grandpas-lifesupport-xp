@@ -1043,14 +1043,14 @@ function useExtraLife() {
 function checkLevelUp() {
   if (xp >= xpNeeded && !isBossMode) {
     xp = 0; level++;
-    xpNeeded = 10;
+    xpNeeded = 5;
     triggerLevelUp();
   }
 }
 
 function triggerLevelUp() {
   // Base money for every level-up (including normal levels)
-  let baseEarn = level * 1;   // $1 per level, gives early cash
+  let baseEarn = level * 2;   // $1 per level, gives early cash
   baseEarn = Math.floor(baseEarn * playerStats.moneyMult);
   money += baseEarn;
   
