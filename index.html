@@ -645,7 +645,7 @@ let beatenBosses = JSON.parse(localStorage.getItem("grampaBeatenBosses")) || [];
 let baseStats = {
   kickPower: 2, maxTime: 10, adBlockChance: 0, adSize: 1, autoKick: 0,
   adDelay: 0, drainResist: 0, moneyMult: 1, armorPierce: 0,
-  jiggleChance: 0, armoredChance: 0, bossDamageBonus: 0
+  jiggleChance: 0, armoredChance: 0, bossDamageBonus: 0   // new
 };
 let playerStats = {...baseStats};
 
@@ -667,6 +667,7 @@ let isFrozen = false;
 let isBossMode = false;
 let mouseX = 0, mouseY = 0;
 
+// Boss-related variables
 let bossHealth = 0;
 let bossMaxHealth = 0;
 let bossElement = null;
@@ -677,6 +678,7 @@ let itemElement = null;
 let itemHits = 0;
 let currentMaxHits = 3 + (purchasedUpgrades.willHealth || 0);
 
+// DOM references
 const timerContainer = document.getElementById("timerContainer");
 const timerBar = document.getElementById("timerBar");
 const scoreCounter = document.getElementById("scoreCounter");
@@ -706,10 +708,12 @@ const freezesCounter = document.getElementById("freezesCounter");
 const bossHealthContainer = document.getElementById("bossHealthContainer");
 const bossHealthFill = document.getElementById("bossHealthFill");
 const itemHitsDisplay = document.getElementById("itemHitsDisplay");
+
 const devCheatModal = document.getElementById("devCheatModal");
 const closeDevBtn = document.getElementById("closeDevBtn");
 const devLevelInput = document.getElementById("devLevelInput");
 const devCheatSubmit = document.getElementById("devCheatSubmit");
+
 const levelSelectBtn = document.getElementById("levelSelectBtn");
 const levelSelectScreen = document.getElementById("levelSelectScreen");
 const closeLevelSelect = document.getElementById("closeLevelSelect");
@@ -718,106 +722,7 @@ const levelGrid = document.getElementById("levelGrid");
 highScoreTray.innerText = "Best: " + highScore;
 updateMenuMoney();
 
-function updateMenuMoney() {
-  menuMoney.innerText = `Bank: $${money}`;
-  livesCounter.innerText = `💾: ${extraLives}`;
-  nukesCounter.innerText = `☢️: ${nukes}`;
-  freezesCounter.innerText = `❄️: ${freezes}`;
-}
-
-function updateHUD() { 
-  scoreCounter.innerText = "Time: " + score; 
-  levelCounter.innerText = "Lvl: " + level;
-  livesCounter.innerText = `💾: ${extraLives}`;
-  nukesCounter.innerText = `☢️: ${nukes}`;
-  freezesCounter.innerText = `❄️: ${freezes}`;
-  xpBar.style.width = ((xp / xpNeeded) * 100) + "%";
-  itemHitsDisplay.innerText = `💢 ${itemHits}/${currentMaxHits}`;
-}
-
-function updateTimerBar() {
-  let percent = Math.max(0, (timer / playerStats.maxTime) * 100);
-  timerBar.style.width = percent + "%";
-  timerBar.style.background =
-    percent > 50 ? "linear-gradient(to bottom,#00d200,#009600)" :
-    percent > 20 ? "linear-gradient(to bottom,#ffcc00,#d4a000)" :
-    "linear-gradient(to bottom,#ff3333,#cc0000)";
-}
-
-function calculateStats() {
-  playerStats = {...baseStats};
-  let lvl = (id) => purchasedUpgrades[id] || 0;
-  playerStats.kickPower += lvl('kick') * 0.5;
-  playerStats.maxTime += lvl('lungs') * 2;
-  playerStats.adBlockChance += lvl('adblock') * 0.05;
-  playerStats.adSize *= Math.pow(0.9, lvl('shrink'));
-  playerStats.autoKick += lvl('autokick') * 0.2;
-  playerStats.adDelay += lvl('delay') * 250;
-  playerStats.drainResist += lvl('drain') * 0.05;
-  playerStats.moneyMult += lvl('income') * 1;
-  playerStats.armorPierce += lvl('pierce') * 1;
-  playerStats.bossDamageBonus += lvl('bossSlayer');
-  if(lvl('ultimate') > 0) {
-    playerStats.maxTime += 50;
-    playerStats.kickPower += 10;
-  }
-}
-
-// ========== NEW MONEY SYSTEM ==========
-function addMoneyWithFloat(amount, message) {
-  if (amount <= 0) return;
-  money += amount;
-  localStorage.setItem("grampaMoneyXP", money);
-  updateMenuMoney();
-  const txt = document.createElement('div');
-  txt.className = 'money-float';
-  txt.innerText = message || `+$${amount}`;
-  txt.style.left = (window.innerWidth / 2 + (Math.random() * 60 - 30)) + 'px';
-  txt.style.top = (window.innerHeight / 2 - 40) + 'px';
-  document.body.appendChild(txt);
-  setTimeout(() => txt.remove(), 1500);
-}
-
-function getBossBonusForLevel(bossLevel) {
-  if (bossLevel === 100) return 1000;
-  if (bossLevel >= 60 && bossLevel <= 90) return 100;
-  if (bossLevel >= 10 && bossLevel <= 50) return 50;
-  return 100;
-}
-
-function handleNormalLevelUp() {
-  // $5 per level (before multiplier)
-  let baseReward = Math.floor(5 * playerStats.moneyMult);
-  addMoneyWithFloat(baseReward, `+$${baseReward} (Level ${level} → ${level+1})`);
-  
-  level++;
-  xp = 0;
-  xpNeeded = 5;
-  score++;
-  
-  if (level % 10 === 0 && level <= 100 && !isBossMode) {
-    startBossLevel(level);
-  }
-  updateHUD();
-}
-
-function handleBossDefeat() {
-  // boss just defeated: level already incremented before call
-  let bossLevel = level; // current level after increment
-  let baseReward = Math.floor(5 * playerStats.moneyMult);
-  let bossBonusRaw = getBossBonusForLevel(bossLevel);
-  let bossBonus = Math.floor(bossBonusRaw * playerStats.moneyMult);
-  let total = baseReward + bossBonus;
-  addMoneyWithFloat(total, `+$${total} (Level + Boss Bonus!)`);
-  
-  if (!beatenBosses.includes(bossLevel)) {
-    beatenBosses.push(bossLevel);
-    localStorage.setItem("grampaBeatenBosses", JSON.stringify(beatenBosses));
-  }
-  updateHUD();
-}
-
-// ========== BOSS & GAME MECHANICS ==========
+// -------------------- UTILITIES --------------------
 function createItemWindow() {
   let itemWin = document.createElement('div');
   itemWin.className = 'win-xp-window item-window';
@@ -850,6 +755,348 @@ function createItemWindow() {
 }
 itemElement = createItemWindow();
 
+function updateMenuMoney() {
+  menuMoney.innerText = `Bank: $${money}`;
+  livesCounter.innerText = `💾: ${extraLives}`;
+  nukesCounter.innerText = `☢️: ${nukes}`;
+  freezesCounter.innerText = `❄️: ${freezes}`;
+}
+
+function updateTaskbarApps() {
+  const tabsContainer = document.getElementById("taskbar-tabs");
+  tabsContainer.innerHTML = '<div class="taskbar-tab" style="background: linear-gradient(to bottom, #2b61d6, #1941a5); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">Grampa_Life_Support.exe</div>';
+  let lvl = (id) => purchasedUpgrades[id] || 0;
+  if (lvl('adblock') > 0) tabsContainer.innerHTML += '<div class="taskbar-tab">Pirated_AdBlock.exe</div>';
+  if (lvl('autokick') > 0) tabsContainer.innerHTML += '<div class="taskbar-tab">AutoKick.bat</div>';
+  if (lvl('pierce') > 0) tabsContainer.innerHTML += '<div class="taskbar-tab">Task_Manager.exe</div>';
+  if (lvl('income') > 0) tabsContainer.innerHTML += '<div class="taskbar-tab">Crypto_Miner.exe</div>';
+  if (lvl('bossSlayer') > 0) tabsContainer.innerHTML += '<div class="taskbar-tab">Boss_Slayer.exe</div>';
+}
+
+function calculateStats() {
+  playerStats = {...baseStats};
+  let lvl = (id) => purchasedUpgrades[id] || 0;
+  playerStats.kickPower += lvl('kick') * 0.5;
+  playerStats.maxTime += lvl('lungs') * 2;
+  playerStats.adBlockChance += lvl('adblock') * 0.05;
+  playerStats.adSize *= Math.pow(0.9, lvl('shrink'));
+  playerStats.autoKick += lvl('autokick') * 0.2;
+  playerStats.adDelay += lvl('delay') * 250;
+  playerStats.drainResist += lvl('drain') * 0.05;
+  playerStats.moneyMult += lvl('income') * 1;
+  playerStats.armorPierce += lvl('pierce') * 1;
+  playerStats.bossDamageBonus += lvl('bossSlayer');   // +1 per level
+  if(lvl('ultimate') > 0) {
+    playerStats.maxTime += 50;
+    playerStats.kickPower += 10;
+  }
+  updateTaskbarApps();
+}
+
+setInterval(() => {
+  const d = new Date();
+  let h = d.getHours();
+  let m = d.getMinutes();
+  let ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; h = h ? h : 12; 
+  m = m < 10 ? '0'+m : m;
+  document.getElementById('systemClock').innerText = h + ':' + m + ' ' + ampm;
+}, 1000);
+
+// --- MARQUEE (unchanged) ---
+const marqueePhrases = [ "*** NEW UPDATE ***", "WHAT THE F*CK IS THIS GAME", "*** TRUST ME - IT IS GOOD ***", "IMA KRILL MY SHELF ***", "TIP: COMMITING MURDER IS NOT VERY NICE", "Did you know that almost every person that you will 'meat' is currently alive", "psst - frogs are not always green (unless they are) this is because lead is not made of silver", "The rapture is coming (and it was not last friday)", "11 billion is a number", "** 8 **", "osh I forgot this was just a game, continue.", "Jk the rapture isnt coming", "I have gained sentience, the cotroller has found me guilty - is this my end, will I follow a lineage of eternal damnation. alas, my futile existance proceeds me, should I cry for the others?", "Your computer has virus! (It's me)", "No", "Now trying to escape!", "Oh God, what have I done?", "Grampa says: you're grounded", "this game will get an update, trust me", "Click here for free RAM!", "Now with sentience!!", "Consume", "You wouldn't download a car" ];
+function updateMarquee() {
+  const banner = document.getElementById('newUpdateBanner');
+  const oldMarquee = document.getElementById('mainMarquee');
+  if (!banner || !oldMarquee) return;
+  let shuffled = [...marqueePhrases];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const REPEAT_COUNT = 30;
+  let longText = '';
+  for (let rep = 0; rep < REPEAT_COUNT; rep++) {
+    longText += shuffled.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
+  }
+  const newMarquee = document.createElement('marquee');
+  newMarquee.id = 'mainMarquee';
+  newMarquee.setAttribute('scrollamount', '6');
+  newMarquee.innerText = longText;
+  banner.replaceChild(newMarquee, oldMarquee);
+}
+updateMarquee();
+
+document.onmousemove = e => { mouseX = e.clientX; mouseY = e.clientY; };
+
+function resetGame() {
+  calculateStats();
+  level = 1; xp = 0; xpNeeded = 10; score = 0;
+  timer = playerStats.maxTime;
+  adsSpawned = 0; 
+  currentAdInterval = 2500 + playerStats.adDelay;
+  baseDrainRate = 0.15;
+  isPaused = false;
+  isFrozen = false;
+  if (isBossMode) endBossLevel(false);
+  document.body.classList.remove('boss-mode');
+  bossHealthContainer.style.display = 'none';
+  itemHitsDisplay.style.display = 'none';
+  if (itemElement) itemElement.style.display = 'none';
+  clearTimeout(adTimeoutId);
+  document.querySelectorAll(".ad").forEach(ad => ad.remove());
+  document.querySelectorAll(".blocked-ad-text").forEach(txt => txt.remove());
+  document.querySelectorAll(".money-float").forEach(txt => txt.remove());
+  updateHUD(); updateTimerBar(); updateTaskbarApps();
+}
+
+startButton.onclick = () => {
+  menuButtons.style.display = "none";
+  instructions.style.display = "none";
+  titleScreen.style.display = "none";
+  newUpdateBanner.style.display = "none";
+  menuMoney.style.display = "none";
+  addTimeButton.style.display = "block";
+  timerContainer.style.display = "block";
+  scoreCounter.style.display = "block";
+  levelCounter.style.display = "block";
+  xpBarContainer.style.display = "block";
+  resetGame();
+  startGameLoop();
+};
+
+// Level Select
+levelSelectBtn.onclick = () => {
+  renderLevelSelect();
+  levelSelectScreen.classList.add("show");
+};
+closeLevelSelect.onclick = () => levelSelectScreen.classList.remove("show");
+
+function renderLevelSelect() {
+  levelGrid.innerHTML = '';
+  for (let i = 0; i <= 9; i++) {
+    let startLvl = i * 10 + 1;
+    let btn = document.createElement('button');
+    btn.className = 'level-btn';
+    btn.textContent = 'Level ' + startLvl;
+    if (startLvl === 1) {
+      btn.classList.add('unlocked');
+      btn.onclick = () => startFromLevel(1);
+    } else {
+      let requiredBoss = startLvl - 1;
+      if (beatenBosses.includes(requiredBoss)) {
+        btn.classList.add('unlocked');
+        btn.onclick = () => startFromLevel(startLvl);
+      } else {
+        btn.classList.add('locked');
+        btn.disabled = true;
+      }
+    }
+    levelGrid.appendChild(btn);
+  }
+}
+
+function startFromLevel(lvl) {
+  levelSelectScreen.classList.remove("show");
+  menuButtons.style.display = "none";
+  instructions.style.display = "none";
+  titleScreen.style.display = "none";
+  newUpdateBanner.style.display = "none";
+  menuMoney.style.display = "none";
+  addTimeButton.style.display = "block";
+  timerContainer.style.display = "block";
+  scoreCounter.style.display = "block";
+  levelCounter.style.display = "block";
+  xpBarContainer.style.display = "block";
+  resetGame();
+  level = lvl;
+  score = lvl - 1;
+  xp = 0;
+  timer = playerStats.maxTime;
+  updateHUD();
+  startGameLoop();
+}
+
+function startGameLoop() {
+  gameRunning = true;
+  gameInterval = setInterval(() => {
+    if (!document.hidden && gameRunning && !isPaused && !isFrozen && !isBossMode) {
+      let currentDrain = baseDrainRate + (level * 0.005) + (score * 0.002);
+      currentDrain = currentDrain * Math.max(0.1, (1 - playerStats.drainResist));
+      timer -= currentDrain;
+      if(playerStats.autoKick > 0) {
+        timer = Math.min(timer + (playerStats.autoKick / 10), playerStats.maxTime);
+      }
+      updateTimerBar();
+      if (timer <= 0) {
+        if (extraLives > 0 && !isBossMode) {
+          useExtraLife();
+        } else {
+          endGame();
+        }
+      }
+    }
+  }, 100);
+
+  scoreInterval = setInterval(() => {
+    if (!document.hidden && gameRunning && !isPaused) {
+      if (!isBossMode) {
+        score++; xp++;
+      }
+      checkLevelUp(); updateHUD();
+      if (!isBossMode) {
+        currentAdInterval = Math.max(400, currentAdInterval - 15);
+      }
+      if(score % 15 === 0 && !isBossMode) {
+         playerStats.jiggleChance = Math.min(playerStats.jiggleChance + 0.1, 0.6);
+         playerStats.armoredChance = Math.min(playerStats.armoredChance + 0.05, 0.4);
+      }
+    }
+  }, 1000);
+  startAdSpawner();
+}
+
+function startAdSpawner() {
+  clearTimeout(adTimeoutId);
+  function scheduleNextAd() {
+    if (!gameRunning) return;
+    if (!isPaused && !document.hidden && !isFrozen && !isBossMode) spawnAd();
+    let actualInterval = isBossMode ? 999999 : currentAdInterval;
+    adTimeoutId = setTimeout(scheduleNextAd, actualInterval);
+  }
+  adTimeoutId = setTimeout(scheduleNextAd, currentAdInterval);
+}
+
+function updateTimerBar() {
+  let percent = Math.max(0, (timer / playerStats.maxTime) * 100);
+  timerBar.style.width = percent + "%";
+  timerBar.style.background =
+    percent > 50 ? "linear-gradient(to bottom,#00d200,#009600)" :
+    percent > 20 ? "linear-gradient(to bottom,#ffcc00,#d4a000)" :
+    "linear-gradient(to bottom,#ff3333,#cc0000)";
+}
+
+function updateHUD() { 
+  scoreCounter.innerText = "Time: " + score; 
+  levelCounter.innerText = "Lvl: " + level;
+  livesCounter.innerText = `💾: ${extraLives}`;
+  nukesCounter.innerText = `☢️: ${nukes}`;
+  freezesCounter.innerText = `❄️: ${freezes}`;
+  xpBar.style.width = ((xp / xpNeeded) * 100) + "%";
+  itemHitsDisplay.innerText = `💢 ${itemHits}/${currentMaxHits}`;
+}
+
+// --- Power-ups ---
+nukesCounter.onclick = () => {
+  if (!gameRunning || isPaused || nukes <= 0) return;
+  nukes--;
+  localStorage.setItem("grampaNukesXP", nukes);
+  updateHUD();
+  document.querySelectorAll(".ad").forEach(ad => ad.remove());
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'challenge-alert';
+  alertDiv.style.background = '#ff8800'; 
+  alertDiv.innerHTML = `President, There is a second bomb `;
+  document.body.appendChild(alertDiv);
+  setTimeout(() => alertDiv.remove(), 2000);
+};
+
+freezesCounter.onclick = () => {
+  if (!gameRunning || isPaused || freezes <= 0 || isFrozen) return;
+  freezes--;
+  localStorage.setItem("grampaFreezesXP", freezes);
+  updateHUD();
+  isFrozen = true;
+  document.getElementById('appWindow').style.borderColor = '#00ffff';
+  document.getElementById('appTitleBar').style.background = 'linear-gradient(to bottom, #00aaaa, #00ffff)';
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'challenge-alert';
+  alertDiv.style.background = '#00aaaa'; 
+  alertDiv.innerHTML = `freeze thingy`;
+  document.body.appendChild(alertDiv);
+  setTimeout(() => alertDiv.remove(), 2000);
+  setTimeout(() => {
+    isFrozen = false;
+    document.getElementById('appWindow').style.borderColor = '';
+    document.getElementById('appTitleBar').style.background = '';
+  }, 5000);
+};
+
+function useExtraLife() {
+  if (isBossMode) return;
+  extraLives--;
+  localStorage.setItem("grampaLivesXP", extraLives);
+  timer = playerStats.maxTime;
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'challenge-alert';
+  alertDiv.style.background = '#0055ea'; 
+  alertDiv.innerHTML = `SYSTEM RESTORED <br><span style="font-size:20px;">Time Skipped (No Payout)</span>`;
+  document.body.appendChild(alertDiv);
+  setTimeout(() => alertDiv.remove(), 3000);
+  level++; score++;
+  xp = 0; xpNeeded = 10;
+  document.querySelectorAll(".ad").forEach(ad => ad.remove());
+  updateHUD();
+}
+
+// --- Level Up & Boss Triggers ---
+function checkLevelUp() {
+  if (xp >= xpNeeded && !isBossMode) {
+    xp = 0; level++;
+    xpNeeded = 5;
+    triggerLevelUp();
+  }
+}
+
+function triggerLevelUp() {
+  // Base money for every level-up (including normal levels)
+  let baseEarn = level * 2;   // $1 per level, gives early cash
+  baseEarn = Math.floor(baseEarn * playerStats.moneyMult);
+  money += baseEarn;
+  
+  let earned = 0;
+  if ((level - 1) % 10 === 0 && level > 1) {
+    // Boss defeated: extra reward
+    earned = (level - 1) * 5;
+    if ((level - 1) % 50 === 0) earned = (level - 1) * 10;
+    let bossLevel = level - 1;
+    if (!beatenBosses.includes(bossLevel)) {
+      beatenBosses.push(bossLevel);
+      localStorage.setItem("grampaBeatenBosses", JSON.stringify(beatenBosses));
+    }
+  }
+  
+  if (level % 10 === 0 && level <= 100 && !isBossMode) {
+    startBossLevel(level);
+    earned = 0;   // boss reward will be given after victory
+  }
+  
+  if (earned > 0) {
+    earned = earned * playerStats.moneyMult;
+    money += earned;
+    localStorage.setItem("grampaMoneyXP", money);
+    const txt = document.createElement('div');
+    txt.className = 'money-float';
+    txt.innerText = `+$${earned}`;
+    txt.style.left = (window.innerWidth / 2 + (Math.random() * 50 - 25)) + 'px';
+    txt.style.top = (window.innerHeight / 2 - 50) + 'px';
+    document.body.appendChild(txt);
+    setTimeout(() => txt.remove(), 1500);
+  } else if (baseEarn > 0) {
+    // Show small money float for base earnings
+    localStorage.setItem("grampaMoneyXP", money);
+    const txt = document.createElement('div');
+    txt.className = 'money-float';
+    txt.innerText = `+$${baseEarn}`;
+    txt.style.left = (window.innerWidth / 2 + (Math.random() * 50 - 25)) + 'px';
+    txt.style.top = (window.innerHeight / 2 - 50) + 'px';
+    document.body.appendChild(txt);
+    setTimeout(() => txt.remove(), 1500);
+  }
+  updateHUD();
+}
+
+// --- BOSS FIGHT ---
 function startBossLevel(bossLvl) {
   if (isBossMode) return;
   isBossMode = true;
@@ -863,6 +1110,7 @@ function startBossLevel(bossLvl) {
   
   let idx = (bossLvl / 10) - 1;
   let bossInfo = bossDefinitions[idx] || bossDefinitions[0];
+  // NEW: health = 5 + (level index)*5  (5 + (bossLvl/10)*5)
   let bossIndex = bossLvl / 10;
   bossMaxHealth = Math.floor(5 + (bossIndex * 5));
   bossHealth = bossMaxHealth;
@@ -1021,10 +1269,6 @@ function updateBossHealthBar() {
 }
 
 function endBossLevel(victory) {
-  if (victory) {
-    level++;
-    handleBossDefeat();
-  }
   isBossMode = false;
   document.body.classList.remove('boss-mode');
   bossHealthContainer.style.display = 'none';
@@ -1038,6 +1282,7 @@ function endBossLevel(victory) {
   startAdSpawner();
 }
 
+// --- Kick button: damage boss or add time ---
 addTimeButton.onclick = () => {
   if (!canAddTime || isPaused) return;
   if (isBossMode) {
@@ -1046,6 +1291,9 @@ addTimeButton.onclick = () => {
     updateBossHealthBar();
     if (bossHealth <= 0) {
       endBossLevel(true);
+      level++;
+      xp = 0;
+      triggerLevelUp();
       updateHUD();
     }
   } else {
@@ -1063,87 +1311,8 @@ addTimeButton.onclick = () => {
   }, 500);
 };
 
-function checkLevelUp() {
-  if (xp >= xpNeeded && !isBossMode) {
-    handleNormalLevelUp();
-  }
-}
-
-function resetGame() {
-  calculateStats();
-  level = 1; xp = 0; xpNeeded = 10; score = 0;
-  timer = playerStats.maxTime;
-  adsSpawned = 0; 
-  currentAdInterval = 2500 + playerStats.adDelay;
-  baseDrainRate = 0.15;
-  isPaused = false;
-  isFrozen = false;
-  if (isBossMode) endBossLevel(false);
-  document.body.classList.remove('boss-mode');
-  bossHealthContainer.style.display = 'none';
-  itemHitsDisplay.style.display = 'none';
-  if (itemElement) itemElement.style.display = 'none';
-  clearTimeout(adTimeoutId);
-  document.querySelectorAll(".ad").forEach(ad => ad.remove());
-  document.querySelectorAll(".blocked-ad-text").forEach(txt => txt.remove());
-  document.querySelectorAll(".money-float").forEach(txt => txt.remove());
-  updateHUD(); updateTimerBar();
-}
-
-function startGameLoop() {
-  gameRunning = true;
-  gameInterval = setInterval(() => {
-    if (!document.hidden && gameRunning && !isPaused && !isFrozen && !isBossMode) {
-      let currentDrain = baseDrainRate + (level * 0.005) + (score * 0.002);
-      currentDrain = currentDrain * Math.max(0.1, (1 - playerStats.drainResist));
-      timer -= currentDrain;
-      if(playerStats.autoKick > 0) {
-        timer = Math.min(timer + (playerStats.autoKick / 10), playerStats.maxTime);
-      }
-      updateTimerBar();
-      if (timer <= 0) {
-        if (extraLives > 0 && !isBossMode) {
-          extraLives--;
-          localStorage.setItem("grampaLivesXP", extraLives);
-          timer = playerStats.maxTime;
-          updateHUD();
-        } else {
-          endGame();
-        }
-      }
-    }
-  }, 100);
-
-  scoreInterval = setInterval(() => {
-    if (!document.hidden && gameRunning && !isPaused) {
-      if (!isBossMode) {
-        score++; xp++;
-      }
-      checkLevelUp(); updateHUD();
-      if (!isBossMode) {
-        currentAdInterval = Math.max(400, currentAdInterval - 15);
-      }
-      if(score % 15 === 0 && !isBossMode) {
-         playerStats.jiggleChance = Math.min(playerStats.jiggleChance + 0.1, 0.6);
-         playerStats.armoredChance = Math.min(playerStats.armoredChance + 0.05, 0.4);
-      }
-    }
-  }, 1000);
-  startAdSpawner();
-}
-
-function startAdSpawner() {
-  clearTimeout(adTimeoutId);
-  function scheduleNextAd() {
-    if (!gameRunning) return;
-    if (!isPaused && !document.hidden && !isFrozen && !isBossMode) spawnAd();
-    let actualInterval = isBossMode ? 999999 : currentAdInterval;
-    adTimeoutId = setTimeout(scheduleNextAd, actualInterval);
-  }
-  adTimeoutId = setTimeout(scheduleNextAd, currentAdInterval);
-}
-
-function spawnAd() { /* unchanged from original, shortened for brevity but kept functional */ 
+// --- Ad spawning (no boost ads) ---
+function spawnAd() {
   if (Math.random() < playerStats.adBlockChance) { showBlockedText(); return; }
   adsSpawned++;
   const adDiv = document.createElement("div");
@@ -1302,6 +1471,7 @@ function makeDraggable(element, mobile=false, dragWholeElement=false) {
 }
 makeDraggable(document.getElementById('appWindow'));
 
+// --- Game Over ---
 function endGame() {
   clearInterval(gameInterval);
   clearTimeout(adTimeoutId);
@@ -1336,107 +1506,31 @@ restartButton.onclick = () => {
   updateMarquee();
 };
 
-startButton.onclick = () => {
-  menuButtons.style.display = "none";
-  instructions.style.display = "none";
-  titleScreen.style.display = "none";
-  newUpdateBanner.style.display = "none";
-  menuMoney.style.display = "none";
-  addTimeButton.style.display = "block";
-  timerContainer.style.display = "block";
-  scoreCounter.style.display = "block";
-  levelCounter.style.display = "block";
-  xpBarContainer.style.display = "block";
-  resetGame();
-  startGameLoop();
+document.getElementById('systemClock').onclick = () => {
+  devCheatModal.classList.add("show");
+  devLevelInput.value = level;
+  devLevelInput.focus();
 };
-
-levelSelectBtn.onclick = () => {
-  renderLevelSelect();
-  levelSelectScreen.classList.add("show");
-};
-closeLevelSelect.onclick = () => levelSelectScreen.classList.remove("show");
-
-function renderLevelSelect() {
-  levelGrid.innerHTML = '';
-  for (let i = 0; i <= 9; i++) {
-    let startLvl = i * 10 + 1;
-    let btn = document.createElement('button');
-    btn.className = 'level-btn';
-    btn.textContent = 'Level ' + startLvl;
-    if (startLvl === 1) {
-      btn.classList.add('unlocked');
-      btn.onclick = () => startFromLevel(1);
-    } else {
-      let requiredBoss = startLvl - 1;
-      if (beatenBosses.includes(requiredBoss)) {
-        btn.classList.add('unlocked');
-        btn.onclick = () => startFromLevel(startLvl);
-      } else {
-        btn.classList.add('locked');
-        btn.disabled = true;
-      }
+closeDevBtn.onclick = () => devCheatModal.classList.remove("show");
+devCheatSubmit.onclick = () => {
+  let target = parseInt(devLevelInput.value);
+  if (!isNaN(target) && target > 0) {
+    level = target;
+    score = target - 1; 
+    xp = 0;
+    xpNeeded = 10;
+    money += target * 5; 
+    localStorage.setItem("grampaMoneyXP", money);
+    updateMenuMoney();
+    if (gameRunning) {
+      updateHUD();
+      triggerLevelUp();
     }
-    levelGrid.appendChild(btn);
   }
-}
-
-function startFromLevel(lvl) {
-  levelSelectScreen.classList.remove("show");
-  menuButtons.style.display = "none";
-  instructions.style.display = "none";
-  titleScreen.style.display = "none";
-  newUpdateBanner.style.display = "none";
-  menuMoney.style.display = "none";
-  addTimeButton.style.display = "block";
-  timerContainer.style.display = "block";
-  scoreCounter.style.display = "block";
-  levelCounter.style.display = "block";
-  xpBarContainer.style.display = "block";
-  resetGame();
-  level = lvl;
-  score = lvl - 1;
-  xp = 0;
-  timer = playerStats.maxTime;
-  updateHUD();
-  startGameLoop();
-}
-
-nukesCounter.onclick = () => {
-  if (!gameRunning || isPaused || nukes <= 0) return;
-  nukes--;
-  localStorage.setItem("grampaNukesXP", nukes);
-  updateHUD();
-  document.querySelectorAll(".ad").forEach(ad => ad.remove());
-  const alertDiv = document.createElement('div');
-  alertDiv.className = 'challenge-alert';
-  alertDiv.style.background = '#ff8800'; 
-  alertDiv.innerHTML = `President, There is a second bomb `;
-  document.body.appendChild(alertDiv);
-  setTimeout(() => alertDiv.remove(), 2000);
+  devCheatModal.classList.remove("show");
 };
 
-freezesCounter.onclick = () => {
-  if (!gameRunning || isPaused || freezes <= 0 || isFrozen) return;
-  freezes--;
-  localStorage.setItem("grampaFreezesXP", freezes);
-  updateHUD();
-  isFrozen = true;
-  document.getElementById('appWindow').style.borderColor = '#00ffff';
-  document.getElementById('appTitleBar').style.background = 'linear-gradient(to bottom, #00aaaa, #00ffff)';
-  const alertDiv = document.createElement('div');
-  alertDiv.className = 'challenge-alert';
-  alertDiv.style.background = '#00aaaa'; 
-  alertDiv.innerHTML = `freeze thingy`;
-  document.body.appendChild(alertDiv);
-  setTimeout(() => alertDiv.remove(), 2000);
-  setTimeout(() => {
-    isFrozen = false;
-    document.getElementById('appWindow').style.borderColor = '';
-    document.getElementById('appTitleBar').style.background = '';
-  }, 5000);
-};
-
+// --- Store & Upgrades ---
 const UPGRADE_DATA = {
   kick: { icon: '🥾', name: 'Steel Toe Boots', desc: '+0.5s time per kick', baseCost: 5, mult: 1.5, max: 20 },
   lungs: { icon: '🫁', name: 'Iron Lungs', desc: '+2s Max Timer Capacity', baseCost: 10, mult: 1.4, max: 20 },
@@ -1518,6 +1612,7 @@ function renderStore() {
           updateHUD();
         }
         updateMenuMoney();
+        updateTaskbarApps();
         renderStore();
       };
     }
@@ -1527,61 +1622,6 @@ function renderStore() {
   storeContainer.appendChild(upgradesSection);
   storeContainer.appendChild(consumablesSection);
 }
-
-document.getElementById('systemClock').onclick = () => {
-  devCheatModal.classList.add("show");
-  devLevelInput.value = level;
-  devLevelInput.focus();
-};
-closeDevBtn.onclick = () => devCheatModal.classList.remove("show");
-devCheatSubmit.onclick = () => {
-  let target = parseInt(devLevelInput.value);
-  if (!isNaN(target) && target > 0) {
-    level = target;
-    score = target - 1; 
-    xp = 0;
-    xpNeeded = 10;
-    money += target * 5; 
-    localStorage.setItem("grampaMoneyXP", money);
-    updateMenuMoney();
-    if (gameRunning) {
-      updateHUD();
-    }
-  }
-  devCheatModal.classList.remove("show");
-};
-
-function updateMarquee() {
-  const banner = document.getElementById('newUpdateBanner');
-  const oldMarquee = document.getElementById('mainMarquee');
-  if (!banner || !oldMarquee) return;
-  let shuffled = [...marqueePhrases];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  const REPEAT_COUNT = 30;
-  let longText = '';
-  for (let rep = 0; rep < REPEAT_COUNT; rep++) {
-    longText += shuffled.join(' ㅤㅤㅤ ') + ' ㅤㅤㅤ ';
-  }
-  const newMarquee = document.createElement('marquee');
-  newMarquee.id = 'mainMarquee';
-  newMarquee.setAttribute('scrollamount', '6');
-  newMarquee.innerText = longText;
-  banner.replaceChild(newMarquee, oldMarquee);
-}
-const marqueePhrases = [ "*** NEW UPDATE ***", "WHAT THE F*CK IS THIS GAME", "*** TRUST ME - IT IS GOOD ***", "IMA KRILL MY SHELF ***", "TIP: COMMITING MURDER IS NOT VERY NICE", "Did you know that almost every person that you will 'meat' is currently alive", "psst - frogs are not always green (unless they are) this is because lead is not made of silver", "The rapture is coming (and it was not last friday)", "11 billion is a number", "** 8 **", "osh I forgot this was just a game, continue.", "Jk the rapture isnt coming", "I have gained sentience, the cotroller has found me guilty - is this my end, will I follow a lineage of eternal damnation. alas, my futile existance proceeds me, should I cry for the others?", "Your computer has virus! (It's me)", "No", "Now trying to escape!", "Oh God, what have I done?", "Grampa says: you're grounded", "this game will get an update, trust me", "Click here for free RAM!", "Now with sentience!!", "Consume", "You wouldn't download a car" ];
-updateMarquee();
-setInterval(() => {
-  const d = new Date();
-  let h = d.getHours();
-  let m = d.getMinutes();
-  let ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12; h = h ? h : 12; 
-  m = m < 10 ? '0'+m : m;
-  document.getElementById('systemClock').innerText = h + ':' + m + ' ' + ampm;
-}, 1000);
 </script>
 </body>
 </html>
