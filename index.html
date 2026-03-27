@@ -994,7 +994,7 @@ function populateLevelGrid() {
     if (startLvl > 100) continue;
     let btn = document.createElement('button');
     btn.className = 'level-btn unlocked';
-    btn.innerText = `Level ${startLvl} (after ${bossLvl})`;
+    btn.innerText = `Level ${startLvl}`;
     btn.onclick = () => { levelSelectScreen.classList.remove('show'); startGameAtLevel(startLvl); };
     levelGrid.appendChild(btn);
   }
