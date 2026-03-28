@@ -224,9 +224,9 @@ marquee {
   width: 220px;
   height: 220px;
   object-fit: contain;
-  margin-bottom: 15px;
   border: 3px inset #ddd;
   background-color: #fff;
+  display: block;
 }
 #lifeSupportImage:active { filter: contrast(1.5); }
 .xp-btn, .xp-btn-sm {
@@ -498,6 +498,67 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
   width: 100%;
   box-sizing: border-box;
 }
+/* ========== COSMETICS ========== */
+#kickImageContainer {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 15px;
+}
+#cosmeticOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  object-fit: contain;
+  display: none;
+}
+#wardrobeScreen .win-xp-content {
+  max-height: 420px;
+  overflow-y: auto;
+  align-items: stretch;
+  padding: 10px;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+}
+.cosmetic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+.cosmetic-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 2px outset #eee;
+  background: #ECE9D8;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.cosmetic-item.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc;
+}
+.cosmetic-item.equipped {
+  border: 2px solid #0055ea;
+  background: #d0e8ff;
+  border-style: inset;
+}
+.cosmetic-item:hover:not(.locked) { background: #eef3fc; border-style: inset; }
+.cosmetic-emoji { font-size: 28px; min-width: 36px; text-align: center; }
+.cosmetic-info { display: flex; flex-direction: column; }
+.cosmetic-name { font-weight: bold; font-size: 13px; color: #000080; }
+.cosmetic-unlock { font-size: 11px; color: #555; }
+.cosmetic-status { font-size: 11px; font-weight: bold; }
+.cosmetic-status.unlocked { color: green; }
+.cosmetic-status.locked-txt { color: #999; }
+.cosmetic-status.equipped-txt { color: #0055ea; }
 </style>
 </head>
 <body>
@@ -545,13 +606,17 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
       <b>BOSSES:</b> Every 10 levels a unique boss appears. Protect "The Will"!<br>
       <b>RULES:</b> Click The Will to move it. If the boss's lasers hit it 3 times (plus upgrades), you fail. Kick the button to damage the boss.
     </div>
-    <img id="lifeSupportImage" src="image1.png" alt="Life Support" onerror="this.style.background='#ffcccc'; this.alt='[Image missing, check floppy disk]';">
+    <div id="kickImageContainer">
+      <img id="lifeSupportImage" src="image1.png" alt="Life Support" onerror="this.style.background='#ffcccc'; this.alt='[Image missing, check floppy disk]';">
+      <img id="cosmeticOverlay" src="" alt="">
+    </div>
     <!-- Make kick button unfocusable via tab to prevent accidental spacebar kicks -->
     <button id="addTimeButton" class="xp-btn" tabindex="-1">Kick His Life Support</button>
     <div style="display:flex; gap:10px; margin-top:10px;" id="menuButtons">
       <button id="startButton" class="xp-btn">Run Program</button>
       <button id="storeButton" class="xp-btn">Software Store</button>
       <button id="levelSelectBtn" class="xp-btn">Level Select</button>
+      <button id="wardrobeBtn" class="xp-btn">👒 Wardrobe</button>
     </div>
     <div id="timerContainer"><div id="timerBar"></div></div>
   </div>
@@ -590,6 +655,25 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
       <div id="finalScore" style="font-size: 16px; font-weight: bold;">Time Survived: 0</div>
       <div id="finalLevel" style="font-size: 14px; color: #555;">Level Reached: 1</div>
       <button id="restartButton" class="xp-btn">Reboot System</button>
+    </div>
+  </div>
+</div>
+
+<div id="wardrobeScreen" class="modal-overlay">
+  <div class="win-xp-window" style="width: 520px; max-width: 90%;">
+    <div class="win-xp-titlebar">
+      <span>👒 Wardrobe.exe — Cosmetics</span>
+      <div class="win-xp-close" id="closeWardrobeBtn">X</div>
+    </div>
+    <div class="win-xp-content" style="flex-direction: column;">
+      <div style="font-size:12px; color:#333; margin-bottom:8px; padding:5px; background:#ffffe1; border:1px dashed #888;">
+        Defeat bosses to unlock cosmetics! Each hat appears on top of Grampa's life support.
+        <span id="wardrobeNoneEquipped" style="display:none;"> — <b>Nothing equipped.</b></span>
+      </div>
+      <div id="cosmeticGrid" class="cosmetic-grid"></div>
+      <div style="text-align:center; margin-top:10px;">
+        <button id="unequipCosmeticBtn" class="xp-btn-sm">Remove Cosmetic</button>
+      </div>
     </div>
   </div>
 </div>
@@ -684,6 +768,69 @@ let extraLives = parseInt(localStorage.getItem("grampaLivesXP")) || 0;
 let nukes = parseInt(localStorage.getItem("grampaNukesXP")) || 0;
 let freezes = parseInt(localStorage.getItem("grampaFreezesXP")) || 0;
 let beatenBosses = JSON.parse(localStorage.getItem("grampaBeatenBosses")) || [];  // stores levels like 10,20,...
+
+// -------------------- COSMETICS --------------------
+const COSMETICS_DATA = [
+  { id: 'c1',  name: "John's Firewall Cap",       image: 'cosmetic1.png',  bossLevel: 10,  emoji: '🎩', desc: 'A classic cap with a firewall logo' },
+  { id: 'c2',  name: "Melissa's Malware Bonnet",  image: 'cosmetic2.png',  bossLevel: 20,  emoji: '🎀', desc: 'Pink and dangerous' },
+  { id: 'c3',  name: "Spyware Steve's Shades",    image: 'cosmetic3.png',  bossLevel: 30,  emoji: '🕶️', desc: 'He was watching you this whole time' },
+  { id: 'c4',  name: "Trojan Tom's Crown",        image: 'cosmetic4.png',  bossLevel: 40,  emoji: '👑', desc: 'Royally infected' },
+  { id: 'c5',  name: "Rita's Ransomware Wig",     image: 'cosmetic5.png',  bossLevel: 50,  emoji: '💇', desc: 'Pay $500 to remove it' },
+  { id: 'c6',  name: "John V2's Combat Helmet",   image: 'cosmetic6.png',  bossLevel: 60,  emoji: '🪖', desc: 'He came back, but stylish' },
+  { id: 'c7',  name: "Kevin's Tax Beanie",        image: 'cosmetic7.png',  bossLevel: 70,  emoji: '🧶', desc: 'Legally acquired, allegedly' },
+  { id: 'c8',  name: "Kim's Keylogger Mask",      image: 'cosmetic8.png',  bossLevel: 80,  emoji: '🎭', desc: 'She logged every keystroke you made' },
+  { id: 'c9',  name: "Rootkit Rick's Hoodie",     image: 'cosmetic9.png',  bossLevel: 90,  emoji: '🥷', desc: 'System access: granted' },
+  { id: 'c10', name: "Juan's Ultimate Sombrero",  image: 'cosmetic10.png', bossLevel: 100, emoji: '🪅', desc: 'The final boss. The final hat.' },
+];
+
+let equippedCosmetic = localStorage.getItem("grampaEquippedCosmetic") || null;
+
+const cosmeticOverlay = document.getElementById("cosmeticOverlay");
+
+function updateCosmeticOverlay() {
+  if (equippedCosmetic) {
+    let cosData = COSMETICS_DATA.find(c => c.id === equippedCosmetic);
+    if (cosData && beatenBosses.includes(cosData.bossLevel)) {
+      cosmeticOverlay.src = cosData.image;
+      cosmeticOverlay.style.display = 'block';
+      return;
+    }
+  }
+  cosmeticOverlay.style.display = 'none';
+  cosmeticOverlay.src = '';
+}
+
+function renderCosmeticsScreen() {
+  const grid = document.getElementById('cosmeticGrid');
+  grid.innerHTML = '';
+  COSMETICS_DATA.forEach(cos => {
+    const unlocked = beatenBosses.includes(cos.bossLevel);
+    const isEquipped = equippedCosmetic === cos.id;
+    const item = document.createElement('div');
+    item.className = 'cosmetic-item' + (unlocked ? '' : ' locked') + (isEquipped ? ' equipped' : '');
+    let statusText = unlocked
+      ? (isEquipped ? `<span class="cosmetic-status equipped-txt">✔ Equipped</span>` : `<span class="cosmetic-status unlocked">✔ Unlocked</span>`)
+      : `<span class="cosmetic-status locked-txt">🔒 Beat Level ${cos.bossLevel} Boss</span>`;
+    item.innerHTML = `
+      <div class="cosmetic-emoji">${cos.emoji}</div>
+      <div class="cosmetic-info">
+        <div class="cosmetic-name">${cos.name}</div>
+        <div class="cosmetic-unlock">${cos.desc}</div>
+        ${statusText}
+      </div>`;
+    if (unlocked) {
+      item.onclick = () => {
+        equippedCosmetic = isEquipped ? null : cos.id;
+        localStorage.setItem("grampaEquippedCosmetic", equippedCosmetic || '');
+        updateCosmeticOverlay();
+        renderCosmeticsScreen();
+      };
+    }
+    grid.appendChild(item);
+  });
+}
+
+updateCosmeticOverlay();
 
 // -------------------- PLAYER STATS --------------------
 let baseStats = {
@@ -991,7 +1138,7 @@ function giveBossReward(bossLevelDefeated) {
   localStorage.setItem("grampaMoneyXP", money);
   const txt = document.createElement('div'); txt.className = 'money-float'; txt.innerText = `BOSS BONUS! +$${finalReward}`; txt.style.left = (window.innerWidth / 2 + (Math.random() * 80 - 40)) + 'px'; txt.style.top = (window.innerHeight / 2 - 70) + 'px'; txt.style.color = '#ffaa44'; txt.style.fontSize = '28px'; document.body.appendChild(txt); setTimeout(() => txt.remove(), 1800);
   updateMenuMoney();
-  if (!beatenBosses.includes(bossLevelDefeated)) { beatenBosses.push(bossLevelDefeated); localStorage.setItem("grampaBeatenBosses", JSON.stringify(beatenBosses)); }
+  if (!beatenBosses.includes(bossLevelDefeated)) { beatenBosses.push(bossLevelDefeated); localStorage.setItem("grampaBeatenBosses", JSON.stringify(beatenBosses)); updateCosmeticOverlay(); }
 }
 // Boss functions (full implementations - kept as before, ensure they work)
 function startBossLevel(bossLvl) { if (isBossMode) return; isBossMode = true; document.body.classList.add('boss-mode'); document.querySelectorAll(".ad").forEach(ad => ad.remove()); bossHealthContainer.style.display = 'flex'; itemHitsDisplay.style.display = 'inline-block'; itemHits = 0; updateHUD(); itemElement.style.display = 'flex'; let idx = (bossLvl / 10) - 1; let bossInfo = bossDefinitions[idx] || bossDefinitions[0]; let bossIndex = bossLvl / 10; bossMaxHealth = Math.floor(5 + (bossIndex * 5)); bossHealth = bossMaxHealth; updateBossHealthBar(); bossElement = document.createElement('div'); bossElement.className = 'win-xp-window boss-window'; bossElement.id = 'bossElement'; let titleBar = document.createElement('div'); titleBar.className = 'win-xp-titlebar'; titleBar.innerHTML = `<span>${bossInfo.name}</span><div class="win-xp-close" style="opacity:0.5; pointer-events:none;">X</div>`; bossElement.appendChild(titleBar); let content = document.createElement('div'); content.className = 'win-xp-content'; let imageDiv = document.createElement('div'); imageDiv.className = 'boss-image'; if (bossInfo.image) imageDiv.style.backgroundImage = `url('${bossInfo.image}')`; else imageDiv.style.backgroundColor = bossInfo.color; content.appendChild(imageDiv); let healthUnderlay = document.createElement('div'); healthUnderlay.style.position = 'relative'; healthUnderlay.style.width = '100%'; healthUnderlay.style.height = '10px'; healthUnderlay.style.background = '#333'; healthUnderlay.style.marginTop = '5px'; healthUnderlay.style.border = '1px solid #000'; let healthFill = document.createElement('div'); healthFill.id = 'bossHealthFillBoss'; healthFill.style.height = '100%'; healthFill.style.width = '100%'; healthFill.style.background = '#0f0'; healthUnderlay.appendChild(healthFill); content.appendChild(healthUnderlay); bossElement.appendChild(content); document.body.appendChild(bossElement); let startXb = Math.random() * (window.innerWidth - 100); let startYb = Math.random() * (window.innerHeight - 200); bossElement.style.left = startXb + 'px'; bossElement.style.top = startYb + 'px'; let itemX, itemY, tries = 0; do { itemX = Math.random() * (window.innerWidth - 80); itemY = Math.random() * (window.innerHeight - 150); tries++; } while (Math.hypot(itemX - startXb, itemY - startYb) < 400 && tries < 200); itemElement.style.left = itemX + 'px'; itemElement.style.top = itemY + 'px'; bossMoveInterval = setInterval(() => { if (!isBossMode || !bossElement) return; let currentX = parseFloat(bossElement.style.left); let currentY = parseFloat(bossElement.style.top); let newX = currentX + (Math.random() - 0.5) * 100 * bossInfo.speed; let newY = currentY + (Math.random() - 0.5) * 100 * bossInfo.speed; newX = Math.max(0, Math.min(newX, window.innerWidth - 100)); newY = Math.max(0, Math.min(newY, window.innerHeight - 200)); bossElement.style.left = newX + 'px'; bossElement.style.top = newY + 'px'; }, 800); bossShootInterval = setInterval(() => { if (!isBossMode) return; createBossProjectile(bossInfo); }, 600 / bossInfo.speed); function projectileLoop() { if (!isBossMode) { projectiles.forEach(p => p.remove()); projectiles = []; return; } moveProjectiles(); requestAnimationFrame(projectileLoop); } requestAnimationFrame(projectileLoop); playBossMusic(); }
@@ -1043,6 +1190,15 @@ function populateLevelGrid() {
 }
 levelSelectBtn.onclick = () => { populateLevelGrid(); levelSelectScreen.classList.add("show"); };
 closeLevelSelect.onclick = () => levelSelectScreen.classList.remove("show");
+
+// -------------------- WARDROBE --------------------
+const wardrobeBtn = document.getElementById('wardrobeBtn');
+const wardrobeScreen = document.getElementById('wardrobeScreen');
+const closeWardrobeBtn = document.getElementById('closeWardrobeBtn');
+const unequipCosmeticBtn = document.getElementById('unequipCosmeticBtn');
+wardrobeBtn.onclick = () => { renderCosmeticsScreen(); wardrobeScreen.classList.add("show"); };
+closeWardrobeBtn.onclick = () => wardrobeScreen.classList.remove("show");
+unequipCosmeticBtn.onclick = () => { equippedCosmetic = null; localStorage.setItem("grampaEquippedCosmetic", ''); updateCosmeticOverlay(); renderCosmeticsScreen(); };
 
 // -------------------- STORE & UPGRADES (unchanged) --------------------
 const UPGRADE_DATA = {
