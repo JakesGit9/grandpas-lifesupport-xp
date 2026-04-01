@@ -1205,18 +1205,18 @@ const UPGRADE_DATA = {
   kick: { icon: '🥾', name: 'Steel Toe Boots', desc: '+0.5s time per kick', baseCost: 5, mult: 1.5, max: 20 },
   lungs: { icon: '🫁', name: 'Iron Lungs', desc: '+2s Max Timer Capacity', baseCost: 10, mult: 1.4, max: 20 },
   adblock: { icon: '🛡️', name: 'Pirated AdBlock', desc: '+5% chance to auto-close Ads', baseCost: 20, mult: 1.5, max: 15 },
-  shrink: { icon: '🔍', name: 'Resolution Downgrade', desc: 'Ads are 10% smaller', baseCost: 15, mult: 1.4, max: 6 },
+  shrink: { icon: '🔍', name: 'Resolution Downgrade', desc: 'Ads are 10% smaller', baseCost: 15, mult: 1.4, max: 3 },
   autokick: { icon: '🤖', name: 'Macro Script', desc: 'Auto-kicks (+0.2s per sec)', baseCost: 40, mult: 1.6, max: 10 },
-  delay: { icon: '⏳', name: 'Dial-up Connection', desc: 'Ads spawn slower', baseCost: 25, mult: 1.5, max: 10 },
-  drain: { icon: '🔋', name: 'Eco Mode', desc: 'Timer drains 5% slower', baseCost: 60, mult: 1.6, max: 10 },
-  income: { icon: '💸', name: 'Crypto Miner', desc: 'Increases Time completion money', baseCost: 50, mult: 2.0, max: 5 },
+  delay: { icon: '⏳', name: 'Dial-up Connection', desc: 'Ads spawn slower', baseCost: 25, mult: 1.5, max: 5 },
+  drain: { icon: '🔋', name: 'Eco Mode', desc: 'Timer drains 5% slower', baseCost: 60, mult: 1.7, max: 20 },
+  income: { icon: '💸', name: 'Crypto Miner', desc: 'Increases Time completion money', baseCost: 50, mult: 2.1, max: 5 },
   pierce: { icon: '🔨', name: 'Task Manager', desc: 'Armored Ads have -1 HP', baseCost: 150, mult: 2.5, max: 1 },
   ultimate: { icon: '👑', name: 'The Inheritance', desc: '+50 Max Time, +10 Kick', baseCost: 3000, mult: 1, max: 1 },
-  bossSlayer: { icon: '⚔️', name: 'Boss Slayer', desc: '+1 damage to bosses', baseCost: 30, mult: 1.6, max: 10 },
+  bossSlayer: { icon: '⚔️', name: 'Boss Slayer', desc: '+1 damage to bosses', baseCost: 30, mult: 1.6, max: 20 },
   willHealth: { icon: '📜', name: 'Will Reinforcements', desc: 'The Will can survive +1 hit', baseCost: 100, mult: 1.8, max: 5, isConsumable: false },
-  backup: { icon: '💾', name: 'System Backup Floppy', desc: 'Passive: Auto-Revive & Skip Time (No Payout)', baseCost: 50, mult: 1.3, max: 99, isConsumable: true },
-  nuke: { icon: '☢️', name: 'Anti-Virus Nuke', desc: 'Active: Click tray icon to clear all ads on screen', baseCost: 30, mult: 1.1, max: 99, isConsumable: true },
-  freeze: { icon: '❄️', name: 'System Freeze', desc: 'Active: Click tray icon to pause timer & ads for 5s', baseCost: 20, mult: 1.1, max: 99, isConsumable: true }
+  backup: { icon: '💾', name: 'System Backup Floppy', desc: 'Passive: Auto-Revive & Skip Time (No Payout)', baseCost: 50, mult: 1.3, max: 999, isConsumable: true },
+  nuke: { icon: '☢️', name: 'Anti-Virus Nuke', desc: 'Active: Click tray icon to clear all ads on screen', baseCost: 30, mult: 1.1, max: 999, isConsumable: true },
+  freeze: { icon: '❄️', name: 'System Freeze', desc: 'Active: Click tray icon to pause timer & ads for 5s', baseCost: 20, mult: 1.1, max: 999, isConsumable: true }
 };
 storeButton.onclick = () => { renderStore(); storeScreen.classList.add("show"); };
 closeStoreBtn.onclick = () => storeScreen.classList.remove("show");
