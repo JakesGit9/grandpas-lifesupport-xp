@@ -6,7 +6,7 @@
 <title>Grampa's Life Support Simulator: 2000 Edition</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <style>
-/* ========== WINDOWS XP STYLES ========== */
+
 body {
   margin: 0;
   height: 100vh;
@@ -700,7 +700,7 @@ body.boss-mode #appTitleBar { background: linear-gradient(to bottom, #ff4444, #a
 </div>
 
 <script>
-// -------------------- AUDIO SYSTEM --------------------
+// Audio
 let bgMusic = new Audio('music.mp3');
 bgMusic.loop = true;
 bgMusic.volume = 0.5;
@@ -743,7 +743,7 @@ function stopAllMusic() {
   bossMusic.currentTime = 0;
 }
 
-// -------------------- DATA --------------------
+// game data
 const adImages = ['ad1.jpg','ad2.jpg','ad3.jpg','ad4.jpg','ad5.jpg','ad6.jpg','ad7.jpg','ad8.jpg','ad9.jpg','ad10.jpg','ad11.jpg','ad12.jpg','ad13.jpg','ad14.jpg','ad15.jpg','ad16.jpg','ad17.jpg','ad18.jpg','ad19.jpg','ad20.jpg','ad21.jpg','ad22.jpg','ad23.jpg'];
 const adLink = "https://deviceinfection.netlify.app/";
 
@@ -832,7 +832,7 @@ function renderCosmeticsScreen() {
 
 updateCosmeticOverlay();
 
-// -------------------- PLAYER STATS --------------------
+// plater stats
 let baseStats = {
   kickPower: 2, maxTime: 10, adBlockChance: 0, adSize: 1, autoKick: 0,
   adDelay: 0, drainResist: 0, moneyMult: 1, armorPierce: 0,
@@ -999,7 +999,6 @@ function updateMarquee() {
 updateMarquee();
 document.onmousemove = e => { mouseX = e.clientX; mouseY = e.clientY; };
 
-// ========== PREVENT SPACEBAR FROM ACTIVATING FOCUSED BUTTONS DURING GAMEPLAY ==========
 document.addEventListener('keydown', function(e) {
   if (!gameRunning) return;
   // Only block spacebar if the active element is not an input, textarea, or select (so typing still works)
@@ -1010,7 +1009,7 @@ document.addEventListener('keydown', function(e) {
     e.stopPropagation();
   }
 });
-// Also prevent tab from focusing the kick button (already set tabindex="-1", but also block tab from focusing any .xp-btn while game runs? optional)
+// Also prevent tab from focusing the kick button (already set tabindex="-1")
 // This ensures space never triggers the kick.
 
 function resetGameForStart(startLevel) {
@@ -1191,7 +1190,7 @@ function populateLevelGrid() {
 levelSelectBtn.onclick = () => { populateLevelGrid(); levelSelectScreen.classList.add("show"); };
 closeLevelSelect.onclick = () => levelSelectScreen.classList.remove("show");
 
-// -------------------- WARDROBE --------------------
+// Costumes
 const wardrobeBtn = document.getElementById('wardrobeBtn');
 const wardrobeScreen = document.getElementById('wardrobeScreen');
 const closeWardrobeBtn = document.getElementById('closeWardrobeBtn');
@@ -1200,7 +1199,7 @@ wardrobeBtn.onclick = () => { renderCosmeticsScreen(); wardrobeScreen.classList.
 closeWardrobeBtn.onclick = () => wardrobeScreen.classList.remove("show");
 unequipCosmeticBtn.onclick = () => { equippedCosmetic = null; localStorage.setItem("grampaEquippedCosmetic", ''); updateCosmeticOverlay(); renderCosmeticsScreen(); };
 
-// -------------------- STORE & UPGRADES (unchanged) --------------------
+// Upgrades list
 const UPGRADE_DATA = {
   kick: { icon: '🥾', name: 'Steel Toe Boots', desc: '+0.5s time per kick', baseCost: 5, mult: 1.5, max: 20 },
   lungs: { icon: '🫁', name: 'Iron Lungs', desc: '+2s Max Timer Capacity', baseCost: 10, mult: 1.4, max: 20 },
