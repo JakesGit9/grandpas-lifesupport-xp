@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "grandpas-lifesupport-xp",
+  "name": "grandpas-lifesupport-2000-edition",
   "compatibility_date": "2025-09-27",
   "observability": {
     "enabled": true
